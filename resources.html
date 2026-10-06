@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resources | Yi Fan</title>
+  <meta name="description" content="Research resources by Yi Fan: curated job market paper summaries and notes on financial data.">
+
+  <style>
+    /* Same look as index.html */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
+      color: #222;
+      line-height: 1.6;
+      font-size: 18px;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+
+    nav .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #0059b3;
+      font-weight: 500;
+    }
+
+    nav a:hover { color: #003d80; }
+
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 110px 20px 48px;
+    }
+
+    h2 { color: #0059b3; }
+
+    .project-card {
+      background: white;
+      padding: 22px 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      border-left: 4px solid #0059b3;
+    }
+
+    .project-card h3 { margin-top: 0; color: #0059b3; }
+
+    .project-card a.go {
+      color: #0059b3;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .project-card a.go:hover { text-decoration: underline; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="container">
+    <div style="font-size: 20px; font-weight: bold;"><a href="index.html" style="margin-left: 0; color: #222;">Yi Fan</a></div>
+    <div>
+      <a href="index.html#hero">Home</a>
+      <a href="index.html#research">Research</a>
+      <a href="index.html#teaching">Teaching & CV</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="resources.html">Resources</a>
+    </div>
+  </div>
+</nav>
+
+<section class="section">
+  <h2>Resources</h2>
+  <p>Notes and lists I put together while working on my research, shared in case they are useful to others.</p>
+
+  <div class="project-card">
+    <h3>Job Market Papers: Macro-Finance and Asset Pricing (2025–26)</h3>
+    <p>A curated list of recent job market papers, grouped by topic, with a short summary of each and links to the papers.</p>
+    <a class="go" href="jmp.html">Open the list →</a>
+  </div>
+
+  <div class="project-card">
+    <h3>Working with SEC Form N-PORT Data</h3>
+    <p>A practical guide to the SEC's fund-holdings data: what the files contain, the traps in building a clean holdings panel (amendments, split filings, staggered fiscal quarters, exchange rates, security identifiers), and how to link funds to CRSP.</p>
+    <a class="go" href="nport_guide.html">Read the guide →</a>
+  </div>
+</section>
+
+<footer>
+  © 2026 Yi Fan. All rights reserved.
+</footer>
+
+</body>
+</html>

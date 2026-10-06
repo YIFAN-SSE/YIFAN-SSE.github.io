@@ -58,14 +58,12 @@
     .section {
       max-width: 900px;
       margin: 0 auto;
-      padding: 80px 20px;
-      text-align: justify;
+      padding: 48px 20px;
     }
 
     /* Hero Section */
     #hero {
-      text-align: justify;
-      padding-top: 140px;
+      padding-top: 110px;
     }
 
     #hero img {
@@ -101,7 +99,6 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       margin-bottom: 20px;
-      text-align: justify;
       border-left: 4px solid #0059b3;
     }
 
@@ -146,6 +143,20 @@
     .abstract-toggle[open] summary { background: #003d80; }
     .abstract-toggle p { margin-top: 12px; }
 
+    /* Quick links under the name */
+    .quick-links {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 16px;
+    }
+    .quick-links a {
+      color: #0059b3;
+      text-decoration: none;
+      font-weight: 500;
+      margin: 0 10px;
+    }
+    .quick-links a:hover { text-decoration: underline; }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -165,6 +176,7 @@
       <a href="#research">Research</a>
       <a href="#teaching">Teaching & CV</a>
       <a href="#contact">Contact</a>
+      <a href="resources.html">Resources</a>
     </div>
   </div>
 </nav>
@@ -173,8 +185,13 @@
   <img src="YI.jpg" alt="Yi Fan" />
   <h1>Yi Fan</h1>
   <p class="phd-info">PhD Student (2023–Present) · Finance · Stockholm School of Economics</p>
-  <p style="margin-top: 20px; text-align: justify;">
-    I am a Finance PhD student at the Stockholm School of Economics (2023–Present), specializing in empirical asset pricing. My research focuses on understanding the prices in the market. I enjoy applying rigorous quantitative methods to address real-world financial questions and connecting academic insights with practical applications.
+  <p class="quick-links">
+    <a href="YI_CV_2025_.pdf" target="_blank">CV</a> ·
+    <a href="mailto:yi.fan@hhs.se">Email</a> ·
+    <a href="https://www.linkedin.com/in/yi-fan-04454328a" target="_blank">LinkedIn</a>
+  </p>
+  <p style="margin-top: 20px;">
+    I am a PhD student in Finance at the Stockholm School of Economics, working in empirical asset pricing. I study how markets absorb shocks to supply and demand, and why prices depend on who does the absorbing, in bond and equity markets.
   </p>
 </section>
 
@@ -184,6 +201,7 @@
   <div class="project-card">
     <h3>Working Paper <span style="font-size: 13px; font-weight: bold; color: white; background: #0059b3; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">NEW</span></h3>
     <p><strong>Shared Dealers, Slow-Moving Investors: How Weak Treasury Auctions Reach Agency MBS</strong> (October 2026)</p>
+    <p>When Treasury auctions are weak, the primary dealers who absorb the leftover supply also intermediate agency MBS, and MBS spreads widen for about a week, more so when dealer capital is scarce.</p>
     <details class="abstract-toggle">
       <summary>Abstract</summary>
       <p>Primary dealers absorb the Treasury supply that end investors leave at auction, and the same dealers intermediate agency MBS. Using 771 Treasury auctions, I measure weak demand by the yield concession, the high-minus-median accepted yield. Weaker auctions are associated with larger dealer awards and Treasury positions. The agency MBS spread then widens over about a week and fades, with no pre-auction movement, and the widening is larger when dealer capital is scarce. Its path tracks dealers' activities on MBS TBA market: near-delivery customer volume falls and recovers over the same window. Because end investors move slowly across markets, who absorbs a shock shapes how prices adjust across bond markets.</p>
@@ -193,6 +211,7 @@
   <div class="project-card">
     <h3>Working Paper</h3>
     <p><strong>Correlated Demand and Beta Dynamics in Sustainable Investing</strong> (October 2025)</p>
+    <p>Correlated demand from sustainable investors raises the systematic risk of the stocks they hold, beyond what fundamentals predict.</p>
     <details class="abstract-toggle">
       <summary>Abstract</summary>
       <p>Using U.S. active equity fund data from 2012 to 2024, this paper shows that correlated demand from sustainable investors amplifies systematic risk for stocks in their portfolios. I identify stocks persistently overweighted by sustainable investors as experiencing demand shocks. These stocks exhibit significant return beta increases beyond what fundamentals would predict, with effects concentrated during 2016–2020. I develop a novel measurement capturing the coordination of capital flows across sustainable investors, revealing a demand-driven channel through which thematic investing reshapes systematic risk.</p>

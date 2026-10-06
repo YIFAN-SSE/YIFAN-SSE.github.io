@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Working with SEC Form N-PORT Data | Yi Fan</title>
+  <meta name="description" content="A practical guide to the SEC Form N-PORT data sets: what they contain, the pitfalls, and how to build a clean fund-holdings panel.">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
+      color: #222;
+      line-height: 1.6;
+      font-size: 18px;
+    }
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #ddd;
+      z-index: 1000;
+    }
+    nav .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a { margin-left: 20px; text-decoration: none; color: #0059b3; font-weight: 500; }
+    nav a:hover { color: #003d80; }
+    .section { max-width: 900px; margin: 0 auto; padding: 110px 20px 48px; }
+    h1 { color: #0059b3; font-size: 32px; margin-bottom: 4px; }
+    h2 { color: #0059b3; margin-top: 40px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    h3 { margin-bottom: 4px; }
+    .meta { color: #666; font-size: 15px; }
+    .toc { background: white; border-left: 4px solid #0059b3; padding: 12px 24px; border-radius: 8px;
+           box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 16px; }
+    .toc ol { margin: 6px 0; }
+    .toc a, .section a { color: #0059b3; text-decoration: none; }
+    .toc a:hover, .section a:hover { text-decoration: underline; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 10px 0 18px; }
+    th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef3fa; }
+    code { background: #f1f1f1; padding: 1px 5px; border-radius: 3px; font-size: 15px; }
+    pre { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 12px 14px;
+          overflow-x: auto; font-size: 14px; line-height: 1.45; }
+    pre code { background: none; padding: 0; }
+    .pitfall { background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+               padding: 14px 20px; margin: 14px 0; border-left: 4px solid #d9822b; }
+    .pitfall h3 { margin-top: 0; color: #a35a12; }
+    .fix { color: #1f6f3f; font-weight: 500; }
+    footer { text-align: center; padding: 20px; font-size: 14px; color: #666; }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="container">
+    <div style="font-size: 20px; font-weight: bold;"><a href="index.html" style="margin-left: 0; color: #222;">Yi Fan</a></div>
+    <div>
+      <a href="index.html#hero">Home</a>
+      <a href="index.html#research">Research</a>
+      <a href="index.html#teaching">Teaching & CV</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="resources.html">Resources</a>
+    </div>
+  </div>
+</nav>
+
+<section class="section">
+  <p><a href="resources.html">← Resources</a></p>
+  <h1>Working with SEC Form N-PORT Data</h1>
+  <p class="meta">A practical guide · Yi Fan · October 2026</p>
+
+  <p>Form N-PORT gives security-level holdings for nearly every U.S. registered fund. The data are free, but building a clean holdings panel from them involves a dozen traps. These notes collect the ones I ran into, with the fix I use for each. They cover the SEC's quarterly N-PORT data sets (2019Q4 onward).</p>
+
+  <div class="toc">
+    <strong>Contents</strong>
+    <ol>
+      <li><a href="#what">What N-PORT is</a></li>
+      <li><a href="#get">Getting the data</a></li>
+      <li><a href="#tables">The main tables</a></li>
+      <li><a href="#pitfalls">Pitfalls and fixes</a></li>
+      <li><a href="#match">Matching securities</a></li>
+      <li><a href="#crsp">Linking funds to CRSP</a></li>
+      <li><a href="#checks">Checks worth running</a></li>
+    </ol>
+  </div>
+
+  <h2 id="what">1. What N-PORT is</h2>
+  <ul>
+    <li><strong>Who files:</strong> registered management investment companies (open-end mutual funds, ETFs, closed-end and interval funds) and ETFs organized as unit investment trusts. <strong>Money market funds do not</strong>: they file Form N-MFP.</li>
+    <li><strong>What it reports:</strong> every position at month-end, with identifiers, amounts in the security's currency and in USD, asset and issuer categories, debt terms (maturity, coupon), derivatives with counterparties, fund-level interest-rate risk (DV01 by maturity), and monthly flows and returns.</li>
+    <li><strong>What becomes public:</strong> funds file monthly, but only the report for the <strong>third month of each fiscal quarter</strong> is made public, 60 days after the period ends.</li>
+  </ul>
+
+  <h2 id="get">2. Getting the data</h2>
+  <p>The SEC posts one zip per quarter on its <em>Form N-PORT Data Sets</em> page (e.g. <code>2026q2_nport.zip</code>, about 400 MB). Each zip holds tab-separated tables, joined on <code>ACCESSION_NUMBER</code> (one filing) and <code>HOLDING_ID</code> (one position). I convert each zip to Parquet once, which turns about 145 million holding rows (2019Q4–2026Q2) into roughly 10 GB that load quickly.</p>
+  <p>When parsing, read every column as text and turn off quote handling: some free-text fields contain stray quote characters that otherwise swallow the following lines. Count the rows the parser rejects rather than dropping them silently.</p>
+<pre><code>import pyarrow.csv as pv
+opts = dict(
+    read_options=pv.ReadOptions(block_size=1 &lt;&lt; 26),
+    parse_options=pv.ParseOptions(delimiter="\t", quote_char=False,
+                                  invalid_row_handler=lambda row: "skip"),
+    convert_options=pv.ConvertOptions(null_values=[""], strings_can_be_null=True,
+                                      column_types=...),  # all columns as string
+)
+table = pv.read_csv(f, **opts)</code></pre>
+
+  <h2 id="tables">3. The main tables</h2>
+  <table>
+    <tr><th>Table</th><th>Key columns</th><th>Use</th></tr>
+    <tr><td><code>SUBMISSION</code></td><td><code>ACCESSION_NUMBER</code>, <code>FILING_DATE</code>, <code>SUB_TYPE</code>, <code>REPORT_DATE</code></td><td>filing date, report date, amendments</td></tr>
+    <tr><td><code>FUND_REPORTED_INFO</code></td><td><code>SERIES_ID</code>, <code>SERIES_NAME</code>, <code>NET_ASSETS</code>, monthly flows</td><td>fund identity, size, flows</td></tr>
+    <tr><td><code>FUND_REPORTED_HOLDING</code></td><td><code>HOLDING_ID</code>, <code>ISSUER_CUSIP</code>, <code>BALANCE</code>, <code>UNIT</code>, <code>CURRENCY_VALUE</code>, <code>EXCHANGE_RATE</code>, <code>ASSET_CAT</code>, <code>ISSUER_TYPE</code></td><td>positions</td></tr>
+    <tr><td><code>IDENTIFIERS</code></td><td><code>HOLDING_ID</code>, <code>IDENTIFIER_ISIN</code>, ticker</td><td>ISIN, needed for securities without a CUSIP</td></tr>
+    <tr><td><code>DEBT_SECURITY</code></td><td><code>MATURITY_DATE</code>, <code>COUPON_TYPE</code>, <code>ANNUALIZED_RATE</code></td><td>bond terms; a check on matches</td></tr>
+    <tr><td><code>INTEREST_RATE_RISK</code></td><td>DV01 and DV100 by maturity bucket</td><td>fund-level duration exposure</td></tr>
+    <tr><td>derivatives tables</td><td>forwards, swaps, futures, options, counterparties</td><td>hedging, currency and rate exposure</td></tr>
+  </table>
+  <p>Useful categories: <code>ASSET_CAT</code> = <code>DBT</code> (bonds), <code>ABS-MBS</code>, <code>ABS-O</code>, <code>LON</code> (loans), <code>EC</code> (equity), <code>STIV</code> (short-term vehicles); <code>ISSUER_TYPE</code> = <code>CORP</code>, <code>UST</code> (Treasuries), <code>USGSE</code> (Fannie Mae / Freddie Mac), <code>USGA</code> (Ginnie Mae), <code>MUN</code>, <code>NUSS</code> (non-U.S. sovereigns).</p>
+
+  <h2 id="pitfalls">4. Pitfalls and fixes</h2>
+
+  <div class="pitfall">
+    <h3>Zips are by filing date, not by report date</h3>
+    <p>A quarter's zip contains the filings <em>submitted</em> that quarter, which are mostly reports for the quarter before. An amendment can arrive in a later zip than the report it corrects.</p>
+    <p class="fix">Fix: build one filings index across all zips, and resolve amendments and repeats across all of them, never within one zip.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Amendments</h3>
+    <p><code>SUB_TYPE = NPORT-P/A</code> marks an amended filing, which can restate holdings.</p>
+    <p class="fix">Fix: for each fund × report date, keep the filings with the latest filing date (an <code>is_latest</code> flag in the index).</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>One report split across several filings on the same day</h3>
+    <p>Some fund families file one report as several submissions on the same day, each with a different part of the portfolio. Keeping "the latest filing" by accession number would silently drop most holdings.</p>
+    <p class="fix">Fix: keep every filing from the latest filing date, not just one.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Missing or placeholder series IDs</h3>
+    <p>A few percent of filings have no <code>SERIES_ID</code> or a placeholder such as <code>S000000000</code>, which would merge unrelated funds.</p>
+    <p class="fix">Fix: treat placeholders as missing and use a fallback fund key, e.g. registrant CIK plus series name.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Staggered fiscal quarters and the reporting lag</h3>
+    <p>Funds report on their own fiscal quarters (e.g. iShares in February, May, August, November), so no single date has every fund. And reports appear up to 60 days after the period ends.</p>
+    <p class="fix">Fix: for a calendar quarter-end snapshot, take each fund's latest report in the three months up to that date. The last <em>complete</em> snapshot is the quarter ending about three months before the newest filings; later snapshots miss funds that have not yet filed.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Amounts and exchange rates</h3>
+    <p><code>CURRENCY_VALUE</code> is the market value <strong>already in USD</strong>. <code>BALANCE</code> is the face (for <code>UNIT = PA</code>) or the number of shares (<code>NS</code>), in the security's own currency. <code>EXCHANGE_RATE</code> is filled for non-USD positions, but its direction varies: euro positions typically appear as euros per dollar, yen positions as dollars per yen. Dividing by it blindly turned one yen bond into a $180 billion position in my first pass.</p>
+    <p class="fix">Fix: for each non-USD row, convert face both ways and keep the direction that makes market value / face closest to 1 (bonds trade near par). Then check that no holding exceeds the amount issued.</p>
+<pre><code>r = df.EXCHANGE_RATE.where(df.CURRENCY_CODE.ne("USD") &amp; df.EXCHANGE_RATE.gt(0))
+mult, div = df.BALANCE * r, df.BALANCE / r
+use_mult = (np.log(df.CURRENCY_VALUE / mult).abs()
+            &lt; np.log(df.CURRENCY_VALUE / div).abs())
+face_usd = df.BALANCE.where(r.isna(), np.where(use_mult, mult, div))</code></pre>
+  </div>
+
+  <div class="pitfall">
+    <h3>Bonds reported in "shares"</h3>
+    <p>Some funds report bonds with <code>UNIT = NS</code> but a balance that is clearly face value.</p>
+    <p class="fix">Fix: accept <code>NS</code> rows as face when market value / balance is between 0.5 and 1.5.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Negative balances</h3>
+    <p>Short positions appear as negative balances, most often sold TBA contracts in agency MBS (dollar rolls and hedges).</p>
+    <p class="fix">Fix: keep them, flag them, and decide explicitly whether a measure uses gross longs or net positions.</p>
+  </div>
+
+  <div class="pitfall">
+    <h3>Issuer and asset types are not always what you expect</h3>
+    <p>About 2% of corporate-bond holdings in my sample are filed with <code>ISSUER_TYPE = OTHER</code> rather than <code>CORP</code>. Filtering on <code>CORP</code> drops them.</p>
+    <p class="fix">Fix: match securities on identifiers, and use the categories only to describe portfolios.</p>
+  </div>
+
+  <h2 id="match">5. Matching securities</h2>
+  <ul>
+    <li><strong>Never match on names.</strong> One bond in my sample appears under at least six spellings of its issuer; a name search for another picks up unrelated companies.</li>
+    <li><strong>Use the first 8 characters of <code>ISSUER_CUSIP</code></strong> (ignores check-digit errors) <strong>and the ISIN</strong> from <code>IDENTIFIERS</code>. Euro-denominated and many foreign bonds have only an ISIN.</li>
+    <li><strong>Collect every identifier of a bond:</strong> a 144A bond, its Reg S twin and its later registered version have different CUSIPs. U.S. funds almost always hold the 144A or registered version.</li>
+    <li><strong>Placeholders</strong> such as <code>000000000</code>, <code>N/A</code> or <code>999999999</code>, and funds' internal codes (e.g. starting <code>990</code>), are not security identifiers.</li>
+    <li><strong>Check matches</strong> against <code>DEBT_SECURITY.MATURITY_DATE</code>: a correct match agrees to within days.</li>
+    <li><strong>Agency MBS:</strong> <code>ASSET_CAT = ABS-MBS</code> with <code>ISSUER_TYPE</code> <code>USGSE</code> or <code>USGA</code>. TBA positions can be recognized by their TBA CUSIP prefixes (e.g. <code>01F</code>, <code>21H</code>) or "TBA" in the title.</li>
+  </ul>
+
+  <h2 id="crsp">6. Linking funds to CRSP</h2>
+  <ul>
+    <li>N-PORT identifies funds by SEC <strong>series ID</strong>; CRSP by portfolio number. The SEC's <em>Investment Company Series and Class Information</em> files (yearly snapshots) give each share class's ticker, which can be matched to CRSP tickers year by year.</li>
+    <li>The ticker route misses institutional, insurance-dedicated (variable insurance trust) and many institutional share classes that have no ticker. A <strong>fallback match on fund names</strong> (CRSP names follow "Registrant: Series; Class") closes most of the gap. Compare whole names, not partial matches, or "Growth Portfolio" will match "Conservative Growth Fund".</li>
+    <li>Some funds are not in CRSP at all: internal "central" funds held by other funds of the same family, and master portfolios in master-feeder structures. They remain unlinked by design.</li>
+    <li>In my sample, ticker plus name links cover about 93% of N-PORT net assets.</li>
+  </ul>
+
+  <h2 id="checks">7. Checks worth running</h2>
+  <ul>
+    <li>No fund holds more of a bond than was issued.</li>
+    <li>Market value / face is near 1 for bonds, by currency.</li>
+    <li>Fund-reported maturities agree with the bond's maturity.</li>
+    <li>Snapshot totals move smoothly across quarters; a sudden drop in the latest quarter usually means late filers.</li>
+    <li>A handful of positions checked against the fund's own published holdings.</li>
+  </ul>
+
+  <p class="meta" style="margin-top: 32px;">Corrections and suggestions are welcome: <a href="mailto:yi.fan@hhs.se">yi.fan@hhs.se</a>.</p>
+</section>
+
+<footer>
+  © 2026 Yi Fan. All rights reserved.
+</footer>
+
+</body>
+</html>
