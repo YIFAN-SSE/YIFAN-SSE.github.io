@@ -130,6 +130,22 @@
       font-family: sans-serif;
     }
 
+    /* Abstract toggle */
+    .abstract-toggle summary {
+      display: inline-block;
+      cursor: pointer;
+      list-style: none;
+      background: #0059b3;
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 4px;
+    }
+    .abstract-toggle summary::-webkit-details-marker { display: none; }
+    .abstract-toggle[open] summary { background: #003d80; }
+    .abstract-toggle p { margin-top: 12px; }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -167,16 +183,20 @@
 
   <div class="project-card">
     <h3>Working Paper <span style="font-size: 13px; font-weight: bold; color: white; background: #0059b3; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">NEW</span></h3>
-    <p><strong>Shared Dealers, Slow-Moving Investors: How Weak Treasury Auctions Reach Agency MBS</strong> (October 2026)<br><br>
-    Primary dealers absorb the Treasury supply that end investors leave at auction, and the same dealers intermediate agency MBS. Using 771 Treasury auctions, I measure weak demand by the yield concession, the high-minus-median accepted yield. Weaker auctions are associated with larger dealer awards and Treasury positions. The agency MBS spread then widens over about a week and fades, with no pre-auction movement, and the widening is larger when dealer capital is scarce. Its path tracks dealers' activities on MBS TBA market: near-delivery customer volume falls and recovers over the same window. Because end investors move slowly across markets, who absorbs a shock shapes how prices adjust across bond markets.
-    </p>
+    <p><strong>Shared Dealers, Slow-Moving Investors: How Weak Treasury Auctions Reach Agency MBS</strong> (October 2026)</p>
+    <details class="abstract-toggle">
+      <summary>Abstract</summary>
+      <p>Primary dealers absorb the Treasury supply that end investors leave at auction, and the same dealers intermediate agency MBS. Using 771 Treasury auctions, I measure weak demand by the yield concession, the high-minus-median accepted yield. Weaker auctions are associated with larger dealer awards and Treasury positions. The agency MBS spread then widens over about a week and fades, with no pre-auction movement, and the widening is larger when dealer capital is scarce. Its path tracks dealers' activities on MBS TBA market: near-delivery customer volume falls and recovers over the same window. Because end investors move slowly across markets, who absorbs a shock shapes how prices adjust across bond markets.</p>
+    </details>
   </div>
 
   <div class="project-card">
     <h3>Working Paper</h3>
-    <p><strong>Correlated Demand and Beta Dynamics in Sustainable Investing</strong> (October 2025)<br><br>
-    Using U.S. active equity fund data from 2012 to 2024, this paper shows that correlated demand from sustainable investors amplifies systematic risk for stocks in their portfolios. I identify stocks persistently overweighted by sustainable investors as experiencing demand shocks. These stocks exhibit significant return beta increases beyond what fundamentals would predict, with effects concentrated during 2016–2020. I develop a novel measurement capturing the coordination of capital flows across sustainable investors, revealing a demand-driven channel through which thematic investing reshapes systematic risk.
-    </p>
+    <p><strong>Correlated Demand and Beta Dynamics in Sustainable Investing</strong> (October 2025)</p>
+    <details class="abstract-toggle">
+      <summary>Abstract</summary>
+      <p>Using U.S. active equity fund data from 2012 to 2024, this paper shows that correlated demand from sustainable investors amplifies systematic risk for stocks in their portfolios. I identify stocks persistently overweighted by sustainable investors as experiencing demand shocks. These stocks exhibit significant return beta increases beyond what fundamentals would predict, with effects concentrated during 2016–2020. I develop a novel measurement capturing the coordination of capital flows across sustainable investors, revealing a demand-driven channel through which thematic investing reshapes systematic risk.</p>
+    </details>
     
     <a href="Fan_2025.pdf" style="font-weight: bold;">[Download PDF]</a>
   </div>
